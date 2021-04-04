@@ -660,18 +660,6 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
         stable.background(Styles.black6);
 
         stable.table(title -> {
-            title.add("[accent]" + sector.name()).padLeft(3);
-            if(sector.preset == null){
-                title.add().growX();
-
-                title.button(Icon.pencilSmall, Styles.clearPartiali, () -> {
-                   ui.showTextInput("@sectors.rename", "@name", 20, sector.name(), v -> {
-                       sector.setName(v);
-                       updateSelected();
-                   });
-                }).size(40f).padLeft(4);
-            }
-
             var icon = Icon.icons.get(sector.info.icon + "Small");
 
             title.button(icon == null ? Icon.noneSmall : icon, Styles.clearPartiali, () -> {
@@ -707,6 +695,21 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
                     buttons.button("@back", Icon.left, this::hide).size(210f, 64f);
                 }}.show();
             }).size(40f);
+
+            title.add("[accent]" + sector.name()).padLeft(3);
+
+            if(sector.preset == null){
+                title.add().growX();
+
+                title.button(Icon.pencilSmall, Styles.clearPartiali, () -> {
+                    ui.showTextInput("@sectors.rename", "@name", 20, sector.name(), v -> {
+                        sector.setName(v);
+                        updateSelected();
+                    });
+                }).size(40f).padLeft(4);
+            }
+
+            title.button(Icon.upOpenSmall, Styles.clearPartiali, () -> {}).size(40f).padLeft(4);
         }).row();
 
         stable.image().color(Pal.accent).fillX().height(3f).pad(3f).row();
