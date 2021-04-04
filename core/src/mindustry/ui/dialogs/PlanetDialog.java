@@ -49,7 +49,7 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
     public Mode mode = look;
     public boolean launching;
     public Cons<Sector> listener = s -> {};
-    public boolean stayInMap = false;
+    public boolean stayInMapAfterSelection;
 
     public Seq<Sector> newPresets = new Seq<>();
     public float presetShow = 0f;
@@ -230,13 +230,13 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
         dialog.add("@sectors.captured");
     }
 
-    public void showSelect(Sector sector, Cons<Sector> listener, boolean stayInMap){
+    public void showSelect(Sector sector, Cons<Sector> listener, boolean stayInMapAfterSelection){
         selected = null;
         hovered = null;
         launching = false;
         mode = select;
         this.listener = listener;
-        this.stayInMap = stayInMap;
+        this.stayInMapAfterSelection = stayInMapAfterSelection;
 
         if(!this.isShown()){
             //update view to sector
@@ -709,7 +709,13 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
                 }).size(40f).padLeft(4);
             }
 
-            title.button(Icon.upOpenSmall, Styles.clearPartiali, () -> {}).size(40f).padLeft(4);
+            if(sector.hasBase() && Blocks.launchPad.unlocked()){
+                title.button(Icon.uploadSmall, Styles.clearPartiali, () -> {
+                    ui.planet.showSelect(sector, other -> {
+                        sector.info.destination = other;
+                    }, true);
+                }).size(40f).padLeft(4); // TODO: Allow chaining
+            }
         }).row();
 
         stable.image().color(Pal.accent).fillX().height(3f).pad(3f).row();
@@ -767,14 +773,6 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
             stable.button("@stats", Icon.info, Styles.transt, () -> showStats(sector)).height(40f).fillX().row();
         }
 
-        if(sector.hasBase() && Blocks.launchPad.unlocked() && !(mode == select && !stayInMap)){
-            stable.button("Change export", Icon.upOpen, () -> {  // TODO: Get translation
-                ui.planet.showSelect(sector, other -> {
-                    sector.info.destination = other;
-                }, true);
-            }).height(54f).fillX().row();
-        }
-
         if((sector.hasBase() && mode == look) || canSelect(sector) || (sector.preset != null && sector.preset.alwaysUnlocked) || debugSelect){
             stable.button(
                 mode == select ? "@sectors.select" :
@@ -807,7 +805,7 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
         stable.act(0f);
     }
 
-    void playSelected(){  // TODO: Allow chaining of selections?
+    void playSelected(){
         if(selected == null) return;
 
         Sector sector = selected;
@@ -822,7 +820,7 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
             return;
         }
 
-        boolean shouldHide = mode != select || !stayInMap;
+        boolean shouldHide = mode != select || !stayInMapAfterSelection;
 
         //save before launch.
         if(control.saves.getCurrent() != null && state.isGame() && mode != select){
