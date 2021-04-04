@@ -49,7 +49,7 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
     public Mode mode = look;
     public boolean launching;
     public Cons<Sector> listener = s -> {};
-    public boolean shouldHideAfterSelection;
+    public boolean hideAfterSelection;
 
     public Seq<Sector> newPresets = new Seq<>();
     public float presetShow = 0f;
@@ -230,17 +230,17 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
         dialog.add("@sectors.captured");
     }
 
-    public void beginSelect(Cons<Sector> listener, boolean shouldHideAfterSelection){
+    public void beginSelect(Cons<Sector> listener, boolean hideAfterSelection){
         selected = null;
         hovered = null;
         launching = false;
         mode = select;
         this.listener = listener;
-        this.shouldHideAfterSelection = shouldHideAfterSelection;
+        this.hideAfterSelection = hideAfterSelection;
     }
 
-    public void showSelect(Sector sector, Cons<Sector> listener, boolean shouldHideAfterSelection){
-        beginSelect(listener, shouldHideAfterSelection);
+    public void showSelect(Sector sector, Cons<Sector> listener, boolean hideAfterSelection){
+        beginSelect(listener, hideAfterSelection);
 
         //update view to sector
         lookAt(sector);
@@ -822,7 +822,7 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
             return;
         }
 
-        boolean shouldHide = mode != select || shouldHideAfterSelection;
+        boolean shouldHide = mode != select || hideAfterSelection;
 
         //save before launch.
         if(control.saves.getCurrent() != null && state.isGame() && mode != select){
