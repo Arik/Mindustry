@@ -167,7 +167,7 @@ public class LaunchPad extends Block{
                     if(state.isCampaign()){
                         state.rules.sector.info.destination = other;
                     }
-                }, false);
+                }, true);
                 deselect();
             }).size(40f);
         }

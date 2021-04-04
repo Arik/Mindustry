@@ -49,7 +49,7 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
     public Mode mode = look;
     public boolean launching;
     public Cons<Sector> listener = s -> {};
-    public boolean stayInMapAfterSelection;
+    public boolean shouldHideAfterSelection;
 
     public Seq<Sector> newPresets = new Seq<>();
     public float presetShow = 0f;
@@ -230,24 +230,26 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
         dialog.add("@sectors.captured");
     }
 
-    public void showSelect(Sector sector, Cons<Sector> listener, boolean stayInMapAfterSelection){
+    public void beginSelect(Cons<Sector> listener, boolean shouldHideAfterSelection){
         selected = null;
         hovered = null;
         launching = false;
         mode = select;
         this.listener = listener;
-        this.stayInMapAfterSelection = stayInMapAfterSelection;
+        this.shouldHideAfterSelection = shouldHideAfterSelection;
+    }
 
-        if(!this.isShown()){
-            //update view to sector
-            lookAt(sector);
-            zoom = 1f;
-            planets.zoom = 1f;
-            selectAlpha = 0f;
-            launchSector = sector;
+    public void showSelect(Sector sector, Cons<Sector> listener, boolean shouldHideAfterSelection){
+        beginSelect(listener, shouldHideAfterSelection);
 
-            super.show();
-        }
+        //update view to sector
+        lookAt(sector);
+        zoom = 1f;
+        planets.zoom = 1f;
+        selectAlpha = 0f;
+        launchSector = sector;
+
+        super.show();
     }
 
     void lookAt(Sector sector){
@@ -711,9 +713,9 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
 
             if(sector.hasBase() && Blocks.launchPad.unlocked()){
                 title.button(Icon.uploadSmall, Styles.clearPartiali, () -> {
-                    ui.planet.showSelect(sector, other -> {
+                    ui.planet.beginSelect(other -> {
                         sector.info.destination = other;
-                    }, true);
+                    }, false);
                 }).size(40f).padLeft(4); // TODO: Allow chaining
             }
         }).row();
@@ -820,7 +822,7 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
             return;
         }
 
-        boolean shouldHide = mode != select || !stayInMapAfterSelection;
+        boolean shouldHide = mode != select || shouldHideAfterSelection;
 
         //save before launch.
         if(control.saves.getCurrent() != null && state.isGame() && mode != select){
@@ -862,6 +864,7 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
 
         if(shouldHide) hide();
         mode = look;
+        updateSelected();
     }
 
     public enum Mode{
