@@ -50,6 +50,7 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
     public boolean launching;
     public Cons<Sector> listener = s -> {};
     public boolean hideAfterSelection;
+    public Seq<Sector> exportingSectors = new Seq<>();
 
     public Seq<Sector> newPresets = new Seq<>();
     public float presetShow = 0f;
@@ -157,6 +158,7 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
         mode = look;
         selected = hovered = launchSector = null;
         launching = false;
+        exportingSectors.clear();
 
         zoom = 1f;
         planets.zoom = 1f;
@@ -712,11 +714,16 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
             }
 
             if(sector.hasBase() && Blocks.launchPad.unlocked()){
-                title.button(Icon.uploadSmall, Styles.clearPartiali, () -> {
-                    ui.planet.beginSelect(other -> {
-                        sector.info.destination = other;
+                title.button(Icon.upOpenSmall, Styles.clearPartiali, () -> {  // TODO: upOpenSmall or uploadSmall?
+                    exportingSectors.add(sector);
+                    ui.planet.beginSelect(selectedSector -> {
+                        for(Sector exportingSector : exportingSectors){
+                            if(selectedSector != exportingSector){
+                                exportingSector.info.destination = selectedSector;
+                            }
+                        }
                     }, false);
-                }).size(40f).padLeft(4); // TODO: Allow chaining
+                }).size(40f).padLeft(4);
             }
         }).row();
 
@@ -812,7 +819,7 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
 
         Sector sector = selected;
 
-        if(sector.isBeingPlayed()){
+        if(sector.isBeingPlayed() && mode != select){
             //already at this sector
             hide();
             return;
@@ -858,13 +865,17 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
             }
         }else if(mode == select){
             listener.get(sector);
+            exportingSectors.clear();
         }else{
             control.playSector(sector);
         }
 
-        if(shouldHide) hide();
-        mode = look;
-        updateSelected();
+        if(shouldHide){
+            hide();
+        }else if(mode == select){
+            mode = look;
+            updateSelected();
+        }
     }
 
     public enum Mode{
