@@ -72,6 +72,9 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
                 }else if(selected != null){
                     selected = null;
                     updateSelected();
+                }else if(mode == select && !hideAfterSelection){
+                    mode = look;
+                    exportingSectors.clear();
                 }else{
                     Core.app.post(this::hide);
                 }
@@ -865,7 +868,6 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
             }
         }else if(mode == select){
             listener.get(sector);
-            exportingSectors.clear();
         }else{
             control.playSector(sector);
         }
@@ -874,6 +876,7 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
             hide();
         }else if(mode == select){
             mode = look;
+            exportingSectors.clear();
             updateSelected();
         }
     }
