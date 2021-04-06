@@ -136,6 +136,8 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
             }
        });
 
+        Events.on(EventType.ResearchEvent.class, e -> ui.planet.updateSelected());
+
         shown(this::setup);
     }
 
@@ -717,7 +719,7 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
             }
 
             if(sector.hasBase() && Blocks.launchPad.unlocked()){
-                title.button(Icon.upOpenSmall, Styles.clearPartiali, () -> {  // TODO: upOpenSmall or uploadSmall?
+                title.button(Icon.upOpenSmall, Styles.clearPartiali, () -> {
                     exportingSectors.add(sector);
                     ui.planet.beginSelect(selectedSector -> {
                         for(Sector exportingSector : exportingSectors){
