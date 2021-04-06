@@ -725,6 +725,7 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
                         for(Sector exportingSector : exportingSectors){
                             if(selectedSector != exportingSector){
                                 exportingSector.info.destination = selectedSector;
+                                exportingSector.saveInfo();
                             }
                         }
                     }, false);
