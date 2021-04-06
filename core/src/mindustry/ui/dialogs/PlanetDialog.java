@@ -307,6 +307,7 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
                 if(canSelect(sec) || sec.unlocked() || debugSelect){
 
                     Color color =
+                    exportingSectors.contains(sec) ? complementaryOutlineCover :
                     sec.hasBase() ? Tmp.c2.set(Team.sharded.color).lerp(Team.crux.color, sec.hasEnemyBase() ? 0.5f : 0f) :
                     sec.preset != null ?
                         sec.preset.unlocked() ? Tmp.c2.set(Team.derelict.color).lerp(Color.white, Mathf.absin(Time.time, 10f, 1f)) :
@@ -718,7 +719,7 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
                 }).size(40f).padLeft(4);
             }
 
-            if(sector.hasBase() && Blocks.launchPad.unlocked()){
+            if(sector.hasBase() && Blocks.launchPad.unlocked() && !exportingSectors.contains(sector)){
                 title.button(Icon.upOpenSmall, Styles.clearPartiali, () -> {
                     exportingSectors.add(sector);
                     ui.planet.beginSelect(selectedSector -> {

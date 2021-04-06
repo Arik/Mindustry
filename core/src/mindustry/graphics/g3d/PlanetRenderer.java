@@ -21,6 +21,7 @@ public class PlanetRenderer implements Disposable{
     outlineColor = Pal.accent.cpy().a(1f),
     hoverColor = Pal.accent.cpy().a(0.5f),
     borderColor = Pal.accent.cpy().a(0.3f),
+    complementaryOutlineCover = outlineColor.cpy().shiftHue(180),
     shadowColor = new Color(0, 0, 0, 0.7f);
 
     private static final Seq<Vec3> points = new Seq<>();
