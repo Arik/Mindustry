@@ -237,15 +237,6 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
         dialog.add("@sectors.captured");
     }
 
-    public void beginSelect(Cons<Sector> listener, boolean hideAfterSelection){
-        selected = null;
-        hovered = null;
-        launching = false;
-        mode = select;
-        this.listener = listener;
-        this.hideAfterSelection = hideAfterSelection;
-    }
-
     public void showSelect(Sector sector, Cons<Sector> listener, boolean hideAfterSelection){
         beginSelect(listener, hideAfterSelection);
 
@@ -257,6 +248,16 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
         launchSector = sector;
 
         super.show();
+    }
+
+    public void beginSelect(Cons<Sector> listener, boolean hideAfterSelection){
+        selected = null;
+        hovered = null;
+        launching = false;
+        mode = select;
+        this.listener = listener;
+        this.hideAfterSelection = hideAfterSelection;
+        updateSelected();
     }
 
     void lookAt(Sector sector){
@@ -307,7 +308,7 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
                 if(canSelect(sec) || sec.unlocked() || debugSelect){
 
                     Color color =
-                    exportingSectors.contains(sec) ? complementaryOutlineCover :
+                    exportingSectors.contains(sec) ? complementaryOutlineColor :
                     sec.hasBase() ? Tmp.c2.set(Team.sharded.color).lerp(Team.crux.color, sec.hasEnemyBase() ? 0.5f : 0f) :
                     sec.preset != null ?
                         sec.preset.unlocked() ? Tmp.c2.set(Team.derelict.color).lerp(Color.white, Mathf.absin(Time.time, 10f, 1f)) :
@@ -327,19 +328,19 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
         Sector current = state.getSector() != null && state.getSector().isBeingPlayed() && state.getSector().planet == planets.planet ? state.getSector() : null;
 
         if(current != null){
-            planets.fill(current, hoverColor, -0.001f);
+            planets.fill(current, exportingSectors.contains(current) ? complementaryHoverColor : hoverColor, -0.001f);
         }
 
         //draw hover border
         if(hovered != null){
-            planets.fill(hovered, hoverColor, -0.001f);
-            planets.drawBorders(hovered, borderColor);
+            planets.fill(hovered, exportingSectors.contains(hovered) ? complementaryHoverColor : hoverColor, -0.001f);
+            planets.drawBorders(hovered, exportingSectors.contains(hovered) ? complementaryBorderColor : borderColor);
         }
 
         //draw selected borders
         if(selected != null){
-            planets.drawSelection(selected);
-            planets.drawBorders(selected, borderColor);
+            planets.drawSelection(selected, exportingSectors.contains(selected) ? complementaryOutlineColor : outlineColor, 0.04f, 0.001f);
+            planets.drawBorders(selected, exportingSectors.contains(selected) ? complementaryBorderColor : borderColor);
         }
 
         planets.batch.flush(Gl.triangles);
@@ -450,11 +451,15 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
                 }
             }
         },
-        //info text
+        //info text and selection cancel
         new Table(t -> {
-            t.touchable = Touchable.disabled;
             t.top();
-            t.label(() -> mode == select ? "@sectors.select" : "").style(Styles.outlineLabel).color(Pal.accent);
+            t.label(() -> mode == select ? "@sectors.select" : "").style(Styles.outlineLabel).color(Pal.accent).touchable(Touchable.disabled);
+            t.row().top();
+            t.button("@cancel", Icon.cancel, () -> {
+                mode = look;
+                exportingSectors.clear();
+            }).size(200f, 54f).pad(2).visible(() -> mode == select);
         }),
         buttons,
         //planet selection
