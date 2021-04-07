@@ -73,8 +73,7 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
                     selected = null;
                     updateSelected();
                 }else if(mode == select && !hideAfterSelection){
-                    mode = look;
-                    exportingSectors.clear();
+                    endSelect();
                 }else{
                     Core.app.post(this::hide);
                 }
@@ -455,10 +454,7 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
             t.top();
             t.label(() -> mode == select ? "@sectors.select" : "").style(Styles.outlineLabel).color(Pal.accent).touchable(Touchable.disabled);
             t.row().top();
-            t.button("@cancel", Icon.cancel, () -> {
-                mode = look;
-                exportingSectors.clear();
-            }).size(200f, 54f).pad(2).visible(() -> mode == select);
+            t.button("@cancel", Icon.cancel, this::endSelect).size(200f, 54f).pad(2).visible(() -> mode == select);
         }),
         buttons,
         //planet selection
@@ -876,13 +872,20 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
             }
         }else if(mode == select){
             listener.get(sector);
+            endSelect();
         }else{
             control.playSector(sector);
         }
 
         if(shouldHide){
             hide();
-        }else if(mode == select){
+        }
+    }
+
+    void endSelect(){
+        if(hideAfterSelection){
+            hide();
+        }else{
             mode = look;
             exportingSectors.clear();
             updateSelected();
