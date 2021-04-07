@@ -47,9 +47,9 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
     public float zoom = 1f, selectAlpha = 1f;
     public @Nullable Sector selected, hovered, launchSector;
     public Mode mode = look;
+    public boolean hideAfterSelection;
     public boolean launching;
     public Cons<Sector> listener = s -> {};
-    public boolean hideAfterSelection;
     public Seq<Sector> exportingSectors = new Seq<>();
 
     public Seq<Sector> newPresets = new Seq<>();
@@ -163,7 +163,6 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
         mode = look;
         selected = hovered = launchSector = null;
         launching = false;
-        exportingSectors.clear();
 
         zoom = 1f;
         planets.zoom = 1f;
@@ -339,7 +338,7 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
 
         //draw selected borders
         if(selected != null){
-            planets.drawSelection(selected, exportingSectors.contains(selected) ? complementaryOutlineColor : outlineColor, 0.04f, 0.001f);
+            planets.drawSelection(selected, exportingSectors.contains(selected) ? complementaryOutlineColor : outlineColor);
             planets.drawBorders(selected, exportingSectors.contains(selected) ? complementaryBorderColor : borderColor);
         }
 
@@ -451,7 +450,7 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
                 }
             }
         },
-        //info text and selection cancel
+        //info text and selection cancel button
         new Table(t -> {
             t.top();
             t.label(() -> mode == select ? "@sectors.select" : "").style(Styles.outlineLabel).color(Pal.accent).touchable(Touchable.disabled);

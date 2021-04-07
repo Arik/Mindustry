@@ -284,8 +284,8 @@ public class PlanetRenderer implements Disposable{
         }
     }
 
-    public void drawSelection(Sector sector){
-        drawSelection(sector, Pal.accent, 0.04f, 0.001f);
+    public void drawSelection(Sector sector, Color color){
+        drawSelection(sector, color, 0.04f, 0.001f);
     }
 
     public void drawSelection(Sector sector, Color color, float stroke, float length){
