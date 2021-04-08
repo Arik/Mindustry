@@ -203,13 +203,21 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
         if(Core.graphics.isPortrait()){
             buttons.add(sectorTop).colspan(2).fillX().row();
             addBack();
-            addTech();
+            if(mode == select){
+                addCancel();
+            }else{
+                addTech();
+            }
         }else{
             addBack();
             buttons.add().growX();
             buttons.add(sectorTop).minWidth(230f);
             buttons.add().growX();
-            addTech();
+            if(mode == select){
+                addCancel();
+            }else{
+                addTech();
+            }
         }
     }
 
@@ -219,6 +227,10 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
 
     void addTech(){
         buttons.button("@techtree", Icon.tree, () -> ui.research.show()).size(200f, 54f).pad(2).bottom();
+    }
+
+    void addCancel(){
+        buttons.button("@cancel", Icon.cancel, this::endSelect).size(200f, 54f).pad(2).bottom();
     }
 
     public void showOverview(){
@@ -255,6 +267,7 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
         mode = select;
         this.listener = listener;
         this.hideAfterSelection = hideAfterSelection;
+        rebuildButtons();
         updateSelected();
     }
 
@@ -449,12 +462,11 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
                 }
             }
         },
-        //info text and selection cancel button
+        //info text
         new Table(t -> {
+            t.touchable = Touchable.disabled;
             t.top();
-            t.label(() -> mode == select ? "@sectors.select" : "").style(Styles.outlineLabel).color(Pal.accent).touchable(Touchable.disabled);
-            t.row().top();
-            t.button("@cancel", Icon.cancel, this::endSelect).size(200f, 54f).pad(2).visible(() -> mode == select);
+            t.label(() -> mode == select ? "@sectors.select" : "").style(Styles.outlineLabel).color(Pal.accent);
         }),
         buttons,
         //planet selection
@@ -888,6 +900,7 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
         }else{
             mode = look;
             exportingSectors.clear();
+            rebuildButtons();
             updateSelected();
         }
     }
